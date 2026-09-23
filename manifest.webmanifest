@@ -1,0 +1,25 @@
+{
+  "name": "영창산업개발 철거 견적 자동계산기",
+  "short_name": "영창견적",
+  "description": "철거·원상복구 현장 견적 자동계산 PWA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F5F7F9",
+  "theme_color": "#0F2E2B",
+  "lang": "ko-KR",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

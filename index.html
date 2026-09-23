@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F2E2B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>영창산업개발 철거 견적 자동계산기</title>
+<style>
+:root{
+  --green:#0F2E2B;--yellow:#FFD400;--navy:#17324D;--bg:#F5F7F9;
+  --card:#fff;--text:#17212B;--muted:#6B7280;--line:#E5E7EB;--red:#B91C1C;
+}
+*{box-sizing:border-box}
+body{font-family:Arial,'Noto Sans KR',sans-serif;background:var(--bg);margin:0;color:var(--text)}
+.wrap{max-width:980px;margin:auto;padding:14px 14px 90px}
+.head{background:linear-gradient(135deg,var(--green),var(--navy));color:white;padding:20px;border-radius:18px;position:relative}
+.head h1{margin:0 0 6px;font-size:24px}.head p{margin:0;font-size:13px;opacity:.9}
+.install{position:absolute;right:14px;top:14px;background:var(--yellow);color:#111;padding:8px 11px;border:0;border-radius:10px;font-weight:800;display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:0 3px 12px rgba(0,0,0,.03)}
+.card h2{font-size:16px;margin:0 0 12px;color:var(--green)}
+.row{display:grid;grid-template-columns:1.15fr .8fr .8fr;gap:7px;align-items:center;margin:7px 0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+label{font-size:13px;color:#374151}
+input,select{width:100%;padding:10px;border:1px solid #CBD5E1;border-radius:9px;background:white;font-size:14px}
+.scopes{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.scope{border:1px solid var(--line);border-radius:9px;padding:9px;display:flex;gap:7px;align-items:center}
+.scope input{width:auto}
+.total{grid-column:1/-1;background:var(--green);color:white;border-radius:15px;padding:18px}
+.big{font-size:31px;font-weight:900;margin:5px 0 12px}
+.break{display:grid;grid-template-columns:1fr auto;gap:7px;font-size:14px}.break div:nth-child(even){font-weight:800}
+.btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+button{border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer}
+.primary{background:var(--yellow);color:#111}.secondary{background:#E8EEF3;color:var(--navy)}.danger{background:#FEE2E2;color:var(--red)}
+small{color:var(--muted);font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}
+.full{grid-column:1/-1}
+.status{font-size:11px;color:var(--muted);margin-top:8px}
+.footer{text-align:center;color:var(--muted);font-size:11px;margin:14px 0}
+.bottom-actions{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;justify-content:center;z-index:20}
+.bottom-actions button{min-width:115px}
+@media(max-width:760px){
+ .grid{grid-template-columns:1fr}.scopes{grid-template-columns:1fr 1fr}
+ .row{grid-template-columns:1.1fr .8fr .8fr}.head h1{font-size:21px}.install{position:static;margin-top:12px}
+}
+@media(max-width:430px){.scopes{grid-template-columns:1fr}}
+@media print{.bottom-actions,.install,small{display:none!important}.wrap{padding:0}.card{break-inside:avoid}body{background:white}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="head">
+  <h1>영창산업개발 철거 견적 자동계산기</h1>
+  <p>평수 · 철거범위 · 기공/조공 · 폐기물 · 장비 · 마진 · 부가세 자동계산</p>
+  <button id="installBtn" class="install">앱 설치</button>
+</div>
+
+<div class="grid">
+<div class="card">
+<h2>1. 현장 기본정보</h2>
+<div class="row2">
+  <div><label>현장명</label><input id="site" placeholder="예: 동명동 음식점"></div>
+  <div><label>평수</label><input id="area" type="number" value="0" step="0.1"></div>
+</div>
+<div class="row2">
+  <div><label>작업일수</label><input id="days" type="number" value="1" min="1"></div>
+  <div><label>난이도</label><select id="difficulty"><option value="1">보통 ×1.00</option><option value="1.1">중상 ×1.10</option><option value="1.2">어려움 ×1.20</option></select></div>
+</div>
+<div class="row2">
+  <div><label>평당단가 적용</label><select id="usePyeong"><option value="0">미적용</option><option value="1">적용</option></select></div>
+  <div><label>평당단가</label><input id="pyeongRate" type="number" value="150000"></div>
+</div>
+<small>원가 항목만으로 계산할 때는 평당단가를 미적용으로 두세요.</small>
+</div>
+
+<div class="card">
+<h2>2. 철거 범위</h2>
+<div class="scopes">
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="천장">천장</label>
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="가벽/벽체">가벽/벽체</label>
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="바닥">바닥</label>
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="집기류">집기류</label>
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="주방">주방</label>
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="후드/닥트">후드/닥트</label>
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="간판">간판</label>
+<label class="scope"><input class="scopeChk" type="checkbox" data-name="샷시">샷시</label>
+</div>
+<div style="margin-top:9px"><label>철거범위 추가비용</label><input id="scopeExtra" type="number" value="0"></div>
+</div>
+
+<div class="card">
+<h2>3. 인건비</h2>
+<div class="row"><label>기공</label><input id="skilledCount" type="number" value="0"><input id="skilledRate" type="number" value="250000"></div>
+<div class="row"><label>조공</label><input id="helperCount" type="number" value="0"><input id="helperRate" type="number" value="200000"></div>
+<small>인원 × 일당 × 작업일수</small>
+</div>
+
+<div class="card">
+<h2>4. 폐기물</h2>
+<div class="row"><label>1톤 차량</label><input id="waste1Count" type="number" value="0"><input id="waste1Rate" type="number" value="200000"></div>
+<div class="row"><label>2.5톤 차량</label><input id="waste25Count" type="number" value="0"><input id="waste25Rate" type="number" value="370000"></div>
+<div class="row"><label>기타 폐기물</label><input id="wasteEtcCount" type="number" value="1"><input id="wasteEtcRate" type="number" value="0"></div>
+</div>
+
+<div class="card">
+<h2>5. 장비비</h2>
+<div class="row"><label>미니굴삭기</label><input id="miniCount" type="number" value="0"><input id="miniRate" type="number" value="600000"></div>
+<div class="row"><label>사다리차</label><input id="ladderCount" type="number" value="0"><input id="ladderRate" type="number" value="150000"></div>
+<div class="row"><label>스카이차</label><input id="skyCount" type="number" value="0"><input id="skyRate" type="number" value="700000"></div>
+<div class="row"><label>기타장비</label><input id="equipEtcCount" type="number" value="1"><input id="equipEtcRate" type="number" value="0"></div>
+</div>
+
+<div class="card">
+<h2>6. 마진 · 부가세</h2>
+<div class="row2">
+  <div><label>마진(%)</label><input id="marginRate" type="number" value="10"></div>
+  <div><label>부가세(%)</label><input id="vatRate" type="number" value="10"></div>
+</div>
+<div class="row2">
+  <div><label>기타비용</label><input id="otherCost" type="number" value="0"></div>
+  <div><label>할인/조정액</label><input id="discount" type="number" value="0"></div>
+</div>
+<div class="status" id="saveStatus">입력값은 휴대폰에 자동 저장됩니다.</div>
+</div>
+
+<div class="total">
+<div>최종 견적금액</div>
+<div class="big" id="grandTotal">0원</div>
+<div class="break">
+  <div>원가 합계</div><div id="baseCost">0원</div>
+  <div>마진</div><div id="marginAmt">0원</div>
+  <div>공급가액</div><div id="supply">0원</div>
+  <div>부가세</div><div id="vat">0원</div>
+</div>
+<div class="btns">
+<button class="primary" onclick="window.print()">PDF/인쇄</button>
+<button class="secondary" onclick="shareEstimate()">공유</button>
+<button class="secondary" onclick="copySummary()">요약 복사</button>
+<button class="danger" onclick="resetForm()">초기화</button>
+</div>
+</div>
+
+<div class="card full">
+<h2>견적 상세</h2>
+<table><thead><tr><th>항목</th><th>금액</th></tr></thead><tbody id="detailBody"></tbody></table>
+</div>
+</div>
+
+<div class="footer">영창산업개발 · 010-2473-9944 · 광주광역시 전지역 / 전남 나주·화순</div>
+</div>
+
+<div class="bottom-actions">
+<button class="primary" onclick="window.print()">PDF 저장</button>
+<button class="secondary" onclick="shareEstimate()">견적 공유</button>
+</div>
+
+<script>
+const inputIds = [
+ 'site','area','days','difficulty','usePyeong','pyeongRate','scopeExtra',
+ 'skilledCount','skilledRate','helperCount','helperRate',
+ 'waste1Count','waste1Rate','waste25Count','waste25Rate','wasteEtcCount','wasteEtcRate',
+ 'miniCount','miniRate','ladderCount','ladderRate','skyCount','skyRate','equipEtcCount','equipEtcRate',
+ 'marginRate','vatRate','otherCost','discount'
+];
+const n=id=>Number(document.getElementById(id).value||0);
+const won=v=>Math.round(v).toLocaleString('ko-KR')+'원';
+function scopes(){return [...document.querySelectorAll('.scopeChk:checked')].map(x=>x.dataset.name).join(', ')||'미입력'}
+
+function saveState(){
+  const data={};
+  inputIds.forEach(id=>data[id]=document.getElementById(id).value);
+  data.scopes=[...document.querySelectorAll('.scopeChk')].map(x=>({name:x.dataset.name,checked:x.checked}));
+  localStorage.setItem('ycEstimateState',JSON.stringify(data));
+  document.getElementById('saveStatus').textContent='자동 저장됨';
+}
+function loadState(){
+  const raw=localStorage.getItem('ycEstimateState'); if(!raw) return;
+  try{
+    const data=JSON.parse(raw);
+    inputIds.forEach(id=>{ if(data[id]!==undefined) document.getElementById(id).value=data[id]; });
+    if(data.scopes) document.querySelectorAll('.scopeChk').forEach(x=>{
+      const f=data.scopes.find(s=>s.name===x.dataset.name); if(f) x.checked=f.checked;
+    });
+  }catch(e){}
+}
+
+function calc(){
+ let p=n('usePyeong')===1?n('area')*n('pyeongRate')*n('difficulty'):0;
+ let labor=(n('skilledCount')*n('skilledRate')+n('helperCount')*n('helperRate'))*Math.max(1,n('days'));
+ let waste=n('waste1Count')*n('waste1Rate')+n('waste25Count')*n('waste25Rate')+n('wasteEtcCount')*n('wasteEtcRate');
+ let equip=n('miniCount')*n('miniRate')+n('ladderCount')*n('ladderRate')+n('skyCount')*n('skyRate')+n('equipEtcCount')*n('equipEtcRate');
+ let base=Math.max(0,p+labor+waste+equip+n('scopeExtra')+n('otherCost')-n('discount'));
+ let margin=base*n('marginRate')/100, supplyVal=base+margin, vatVal=supplyVal*n('vatRate')/100, total=supplyVal+vatVal;
+
+ document.getElementById('baseCost').textContent=won(base);
+ document.getElementById('marginAmt').textContent=won(margin);
+ document.getElementById('supply').textContent=won(supplyVal);
+ document.getElementById('vat').textContent=won(vatVal);
+ document.getElementById('grandTotal').textContent=won(total);
+
+ const rows=[['평당단가',p],['인건비',labor],['폐기물',waste],['장비비',equip],['철거범위 추가',n('scopeExtra')],['기타비용',n('otherCost')],['할인/조정',-n('discount')]].filter(x=>x[1]!==0);
+ document.getElementById('detailBody').innerHTML=rows.length?rows.map(x=>`<tr><td>${x[0]}</td><td>${won(x[1])}</td></tr>`).join(''):'<tr><td>입력된 비용 없음</td><td>0원</td></tr>';
+ saveState();
+}
+
+function summaryText(){
+ return `[영창산업개발 철거 견적]
+현장: ${document.getElementById('site').value||'-'}
+평수: ${n('area')}평
+철거범위: ${scopes()}
+원가합계: ${document.getElementById('baseCost').textContent}
+마진: ${document.getElementById('marginAmt').textContent}
+공급가액: ${document.getElementById('supply').textContent}
+부가세: ${document.getElementById('vat').textContent}
+최종금액: ${document.getElementById('grandTotal').textContent}`;
+}
+async function copySummary(){
+ try{await navigator.clipboard.writeText(summaryText());alert('견적 요약을 복사했습니다.');}
+ catch(e){alert('복사가 지원되지 않습니다.');}
+}
+async function shareEstimate(){
+ const text=summaryText();
+ if(navigator.share){
+   try{await navigator.share({title:'영창산업개발 철거 견적',text});}catch(e){}
+ }else{copySummary();}
+}
+function resetForm(){
+ if(!confirm('입력값을 초기화할까요?'))return;
+ localStorage.removeItem('ycEstimateState'); location.reload();
+}
+
+inputIds.forEach(id=>document.getElementById(id).addEventListener('input',calc));
+document.querySelectorAll('.scopeChk').forEach(x=>x.addEventListener('change',calc));
+loadState(); calc();
+
+if('serviceWorker' in navigator){
+ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+}
+
+let deferredPrompt;
+const installBtn=document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt',(e)=>{
+ e.preventDefault(); deferredPrompt=e; installBtn.style.display='inline-block';
+});
+installBtn.addEventListener('click',async()=>{
+ if(!deferredPrompt)return;
+ deferredPrompt.prompt();
+ await deferredPrompt.userChoice;
+ deferredPrompt=null; installBtn.style.display='none';
+});
+</script>
+</body>
+</html>
